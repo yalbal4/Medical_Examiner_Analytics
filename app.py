@@ -28,21 +28,23 @@ app = Dash(__name__)
 
 app.layout = html.Div(children=[
     dcc.Graph(id='graph-with-slider'),
-    dcc.Slider(
-        df['deceasedYear'].min(),
-        df['deceasedYear'].max(),
-        step=None,
-        value=df['deceasedYear'].min(),
-        marks={str(year): str(year) for year in df['deceasedYear'].unique()},
-        id='year-slider'
+    dcc.Dropdown(
+        [str(year) for year in df['deceasedYear'].unique()] + ['All'],
+        placeholder='Select year',
+        value='All',
+        id='year-dropdown'
     )
 ])
 
 @callback(
     Output('graph-with-slider', 'figure'),
-    Input('year-slider', 'value'))
+    Input('year-dropdown', 'value'))
 def update_figure(selected_year):
-    filtered_df = df[df['deceasedYear'] == selected_year]
+    if selected_year == "All":
+        filtered_df = df
+    else:
+        filtered_df = df[df['deceasedYear'] == int(selected_year)]
+    
     by_gender_df = filtered_df.groupby('gender').size()
 
     fig = px.pie(by_gender_df, values=by_gender_df.values, names=by_gender_df.index, title='Overdoses by Sex')
