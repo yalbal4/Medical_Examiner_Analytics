@@ -5,9 +5,24 @@ import plotly.express as px
 from fhir_utils import fetch_patient_data, handle_deceased_datetime_add_helper_columns
 # import dash_bootstrap_components as dbc
 
+USE_FHIR = False
+ORIGINAL_DATE_COLUMN_NAME = 'date'
+ORIGINAL_GENDER_COLUMN_NAME = 'sex'
+ORIGINAL_AGE_COLUMN_NAME = 'age'
+ORIGINAL_RACE_COLUMN_NAME = 'race'
+
 # Incorporate data
-df = fetch_patient_data(count=5000000) # assumes the server url is http://localhost:8080/fhir
-df = handle_deceased_datetime_add_helper_columns(df)
+if USE_FHIR:
+    df = fetch_patient_data(count=5000000) # assumes the server url is http://localhost:8080/fhir
+    df = handle_deceased_datetime_add_helper_columns(df)
+else:
+    df = pd.read_csv('conneticut_wide_form.csv')
+    df.rename(columns={ORIGINAL_DATE_COLUMN_NAME:'deceasedDateTime',
+                       ORIGINAL_GENDER_COLUMN_NAME: 'gender',
+                       ORIGINAL_AGE_COLUMN_NAME: 'age',
+                       ORIGINAL_RACE_COLUMN_NAME: 'race'},
+              inplace=True)
+    df = handle_deceased_datetime_add_helper_columns(df)
 
 app = Dash(__name__)
 
