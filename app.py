@@ -27,7 +27,7 @@ else:
 app = Dash(__name__)
 
 app.layout = html.Div(children=[
-    dcc.Graph(id='graph-with-slider'),
+    dcc.Graph(id='graph-with-dropdown'),
     dcc.Dropdown(
         [str(year) for year in df['deceasedYear'].unique()] + ['All'],
         placeholder='Select year',
@@ -37,7 +37,7 @@ app.layout = html.Div(children=[
 ])
 
 @callback(
-    Output('graph-with-slider', 'figure'),
+    Output('graph-with-dropdown', 'figure'),
     Input('year-dropdown', 'value'))
 def update_figure(selected_year):
     if selected_year == "All":
