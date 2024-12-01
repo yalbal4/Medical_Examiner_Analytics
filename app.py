@@ -1,9 +1,10 @@
 # Import packages
+import dash
 from dash import Dash, html, dash_table, dcc, callback, Output, Input
 import pandas as pd
 import plotly.express as px
 from fhir_utils import fetch_patient_data, handle_deceased_datetime_add_helper_columns
-# import dash_bootstrap_components as dbc
+import dash_bootstrap_components as dbc
 
 USE_FHIR = False
 ORIGINAL_DATE_COLUMN_NAME = 'date'
@@ -24,34 +25,18 @@ else:
               inplace=True)
     df = handle_deceased_datetime_add_helper_columns(df)
 
-app = Dash(__name__)
+app = Dash(__name__, use_pages=True)
+app.title = "Multi-Page Dash App"
 
-app.layout = html.Div(children=[
-    dcc.Graph(id='graph-with-dropdown'),
-    dcc.Dropdown(
-        [str(year) for year in df['deceasedYear'].unique()] + ['All'],
-        placeholder='Select year',
-        value='All',
-        id='year-dropdown'
-    )
+app.layout = html.Div([
+    dcc.Store(id="shared-df", data=df.to_json()),
+    html.H1("Heading 1"),
+    dbc.Nav([
+        dbc.NavLink("Pie Chart", href="/pie", active="exact"), dash.html.Br(),
+        dbc.NavLink("Histogram", href="/histogram", active="exact"), dash.html.Br(),
+    ], pills=True),
+    dash.page_container
 ])
-
-@callback(
-    Output('graph-with-dropdown', 'figure'),
-    Input('year-dropdown', 'value'))
-def update_figure(selected_year):
-    if selected_year == "All":
-        filtered_df = df
-    else:
-        filtered_df = df[df['deceasedYear'] == int(selected_year)]
-    
-    by_gender_df = filtered_df.groupby('gender').size()
-
-    fig = px.pie(by_gender_df, values=by_gender_df.values, names=by_gender_df.index, title='Overdoses by Sex')
-
-    fig.update_layout(transition_duration=500)
-
-    return fig
 
 # Run the app
 if __name__ == '__main__':
