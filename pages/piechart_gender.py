@@ -10,9 +10,15 @@ dash.register_page(__name__, path="/pie", name="Pie Chart")
 layout = html.Div(children=[
     dcc.Graph(id='graph-with-dropdown'),
     dcc.Dropdown(
-        placeholder='Select year',
-        value='All',
+        placeholder='Select year, leave empty to select all',
+        value=None,
         id='year-dropdown'
+    ),
+    dcc.Dropdown(
+        placeholder='Select race, leave empty to select all',
+        value=None,
+        id='race-dropdown',
+        multi=True
     )
 ])
 
@@ -22,24 +28,36 @@ layout = html.Div(children=[
 )
 def populate_year_dropdown(shared_df):
     df = pd.read_json(shared_df)
-    options = [str(year) for year in df['deceasedYear'].unique()] + ['All']
+    options = [str(year) for year in df['deceasedYear'].unique()]
+    return options
+
+@callback(
+    Output('race-dropdown', 'options'),
+    Input('shared-df', 'data')
+)
+def populate_race_dropdown(shared_df):
+    df = pd.read_json(shared_df)
+    options = [str(race) for race in df['race'].unique()]
     return options
 
 @callback(
     Output('graph-with-dropdown', 'figure'),
     [Input('year-dropdown', 'value'),
-    Input('shared-df', 'data')]
+     Input('race-dropdown', 'value'),
+     Input('shared-df', 'data')]
 )
-def update_figure(selected_year, shared_df):
+def update_figure(selected_year, selected_races, shared_df):
     df = pd.read_json(shared_df)
     
-    if selected_year == "All":
-        selected_year = None
-    else:
+    if selected_year is not None:
         selected_year = int(selected_year)
 
+    if selected_races is None or len(selected_races) == 0:
+        selected_races = None
+
     filters = {
-        "deceasedYear": selected_year
+        "deceasedYear": selected_year,
+        "race": selected_races
     }
 
     fig = charts.pie_chart(df, 'gender', 'Overdoses by Sex', filters=filters)
