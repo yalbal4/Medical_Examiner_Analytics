@@ -1,4 +1,4 @@
-from fhir_utils import fetch_patient_data
+from utils.fhir_utils import fetch_patient_data
 import pandas as pd
 # import dash_bootstrap_components as dbc
 

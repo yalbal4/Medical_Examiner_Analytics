@@ -3,7 +3,7 @@ import dash
 from dash import Dash, html, dash_table, dcc, callback, Output, Input
 import pandas as pd
 import plotly.express as px
-from fhir_utils import fetch_patient_data, handle_deceased_datetime_add_helper_columns
+from utils.fhir_utils import fetch_patient_data, handle_deceased_datetime_add_helper_columns
 import dash_bootstrap_components as dbc
 
 USE_FHIR = False

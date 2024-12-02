@@ -3,6 +3,7 @@ import dash
 from dash import html, dcc, callback, Output, Input
 import pandas as pd
 import plotly.express as px
+import utils.charts as charts
 
 dash.register_page(__name__, path="/pie", name="Pie Chart")
 
@@ -19,7 +20,7 @@ layout = html.Div(children=[
     Output('year-dropdown', 'options'),
     Input('shared-df', 'data')
 )
-def populate_dropdown(shared_df):
+def populate_year_dropdown(shared_df):
     df = pd.read_json(shared_df)
     options = [str(year) for year in df['deceasedYear'].unique()] + ['All']
     return options
@@ -33,13 +34,15 @@ def update_figure(selected_year, shared_df):
     df = pd.read_json(shared_df)
     
     if selected_year == "All":
-        filtered_df = df
+        selected_year = None
     else:
-        filtered_df = df[df['deceasedYear'] == int(selected_year)]
-    
-    by_gender_df = filtered_df.groupby('gender').size()
+        selected_year = int(selected_year)
 
-    fig = px.pie(by_gender_df, values=by_gender_df.values, names=by_gender_df.index, title='Overdoses by Sex')
+    filters = {
+        "deceasedYear": selected_year
+    }
+
+    fig = charts.pie_chart(df, 'gender', 'Overdoses by Sex', filters=filters)
 
     fig.update_layout(transition_duration=500)
 
