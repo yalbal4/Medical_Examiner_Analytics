@@ -2,10 +2,9 @@
 import dash
 from dash import html, dcc, callback, Output, Input
 import pandas as pd
-import plotly.express as px
 import utils.charts as charts
 
-dash.register_page(__name__, path="/pie", name="Pie Chart")
+dash.register_page(__name__, path="/pie_gender", name="Pie Chart")
 
 layout = html.Div(children=[
     dcc.Graph(id='graph-with-dropdown'),

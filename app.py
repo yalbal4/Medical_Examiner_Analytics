@@ -1,8 +1,7 @@
 # Import packages
 import dash
-from dash import Dash, html, dash_table, dcc, callback, Output, Input
+from dash import Dash, html, dcc
 import pandas as pd
-import plotly.express as px
 from utils.fhir_utils import fetch_patient_data, handle_deceased_datetime_add_helper_columns
 import dash_bootstrap_components as dbc
 
@@ -32,7 +31,7 @@ app.layout = html.Div([
     dcc.Store(id="shared-df", data=df.to_json()),
     html.H1("Heading 1"),
     dbc.Nav([
-        dbc.NavLink("Pie Chart", href="/pie", active="exact"), dash.html.Br(),
+        dbc.NavLink("Pie Chart", href="/pie_gender", active="exact"), dash.html.Br(),
         dbc.NavLink("Histogram", href="/histogram", active="exact"), dash.html.Br(),
     ], pills=True),
     dash.page_container
