@@ -3,7 +3,7 @@ from dash import html, dcc, callback, Output, Input
 import pandas as pd
 import utils.charts as charts
 
-dash.register_page(__name__, path="/pie_gender", name=" Gender Pie Chart")
+dash.register_page(__name__, path="/gender", name=" Gender Chart")
 
 layout = html.Div(children=[
     dcc.Graph(id='gender-chart'),
@@ -21,7 +21,7 @@ layout = html.Div(children=[
     dcc.Dropdown(
         ['Pie chart', 'Bar chart'],
         placeholder='Select chart type',
-        value=None,
+        value='Pie chart',
         id='chart-dropdown-gender'
     )
 ])
@@ -65,8 +65,6 @@ def update_figure(selected_chart, selected_year, selected_races, shared_df):
         "race": selected_races
     }
 
-    fig = charts.pie_chart(df, 'gender', 'Overdoses by Sex', filters=filters)
-
-    fig.update_layout(transition_duration=500)
+    fig = charts.build_chart(selected_chart, df, 'gender', 'Overdoses by Sex', filters=filters)
 
     return fig

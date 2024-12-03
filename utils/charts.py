@@ -20,24 +20,29 @@ def apply_filters(df, filters):
         
     return df
 
-def pie_chart(df, group_by_column, title, filters=None):
+def build_chart(chart_type, df, group_by_column, title, filters=None):
     if filters:
         df = apply_filters(df, filters)
     
     grouped_df = df.groupby(group_by_column).size()
+
+    if chart_type == "Pie chart":
+        return pie_chart(grouped_df, title)
+    elif chart_type == "Bar chart":
+        return bar_chart(grouped_df, title)
+    else:
+        return None
+
+def pie_chart(df, title):
     return px.pie(
-        names=grouped_df.index,
-        values=grouped_df.values,
+        names=df.index,
+        values=df.values,
         title=title
     )
 
-def bar_chart(df, group_by_column, title, filters=None):
-    if filters:
-        df = apply_filters(df, filters)
-
-    grouped_df = df.groupby(group_by_column).size()
+def bar_chart(df, title):
     return px.bar(
-        names=grouped_df.index,
-        values=grouped_df.values,
+        x=df.index,
+        y=df.values,
         title=title
     )
