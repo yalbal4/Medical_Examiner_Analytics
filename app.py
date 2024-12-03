@@ -31,8 +31,8 @@ app.layout = html.Div([
     dcc.Store(id="shared-df", data=df.to_json()),
     html.H1("Heading 1"),
     dbc.Nav([
-        dbc.NavLink("Pie Chart", href="/pie_gender", active="exact"), dash.html.Br(),
-        dbc.NavLink("Histogram", href="/histogram", active="exact"), dash.html.Br(),
+        dbc.NavLink("Gender Pie Chart", href="/pie_gender", active="exact"), dash.html.Br(),
+        dbc.NavLink("Gender Bar Chart", href="/bar_gender", active="exact"), dash.html.Br(),
     ], pills=True),
     dash.page_container
 ])

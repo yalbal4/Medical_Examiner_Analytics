@@ -30,3 +30,14 @@ def pie_chart(df, group_by_column, title, filters=None):
         values=grouped_df.values,
         title=title
     )
+
+def bar_chart(df, group_by_column, title, filters=None):
+    if filters:
+        df = apply_filters(df, filters)
+
+    grouped_df = df.groupby(group_by_column).size()
+    return px.bar(
+        names=grouped_df.index,
+        values=grouped_df.values,
+        title=title
+    )
