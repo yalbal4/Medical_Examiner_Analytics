@@ -6,7 +6,7 @@ import utils.charts as charts
 dash.register_page(__name__, path="/pie_gender", name=" Gender Pie Chart")
 
 layout = html.Div(children=[
-    dcc.Graph(id='gender-pie-chart'),
+    dcc.Graph(id='gender-chart'),
     dcc.Dropdown(
         placeholder='Select year, leave empty to select all',
         value=None,
@@ -45,7 +45,7 @@ def populate_race_dropdown(shared_df):
     return options
 
 @callback(
-    Output('gender-pie-chart', 'figure'),
+    Output('gender-chart', 'figure'),
     [Input('chart-dropdown-gender', 'value'),
      Input('year-dropdown-gender', 'value'),
      Input('race-dropdown-gender', 'value'),
