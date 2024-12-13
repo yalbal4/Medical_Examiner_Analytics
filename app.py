@@ -27,9 +27,9 @@ else:
 app = Dash(__name__, use_pages=True)
 app.title = "Multi-Page Dash App"
 
-app.layout = html.Div([
+app.layout = html.Div(children=[
     dcc.Store(id="shared-df", data=df.to_json()),
-    html.H1("Heading 1"),
+    html.H1("Overdose Death Analytics Dashboard"),
     dbc.Nav([
         dbc.NavLink("Gender Charts", href="/gender", active="exact"), dash.html.Br(),
         dbc.NavLink("Gender Bar Chart", href="/bar_gender", active="exact"), dash.html.Br(),

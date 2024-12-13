@@ -41,6 +41,13 @@ def pie_chart(df, title):
     )
 
 def bar_chart(df, title):
+    if df.empty:
+        return px.bar(
+            title=f"No data available for selected filters",
+            x=None,
+            y=None
+        )
+    
     return px.bar(
         x=df.index,
         y=df.values,
