@@ -3,31 +3,31 @@ from dash import html, dcc, callback, Output, Input
 import pandas as pd
 import utils.charts as charts
 
-dash.register_page(__name__, path="/gender", name="Gender Chart")
+dash.register_page(__name__, path="/age", name="Age Chart")
 
 layout = html.Div(children=[
-    dcc.Graph(id='gender-chart'),
+    dcc.Graph(id='age-chart'),
     dcc.Dropdown(
         placeholder='Select year, leave empty to select all',
         value=None,
-        id='year-dropdown-gender'
+        id='year-dropdown-age'
     ),
     dcc.Dropdown(
         placeholder='Select race, leave empty to select all',
         value=None,
-        id='race-dropdown-gender',
+        id='race-dropdown-age',
         multi=True
     ),
     dcc.Dropdown(
-        ['Pie chart', 'Bar chart'],
+        ['Bar chart'],
         placeholder='Select chart type',
-        value='Pie chart',
-        id='chart-dropdown-gender'
+        value='Bar chart',
+        id='chart-dropdown-age'
     )
 ])
 
 @callback(
-    Output('year-dropdown-gender', 'options'),
+    Output('year-dropdown-age', 'options'),
     Input('shared-df', 'data')
 )
 def populate_year_dropdown(shared_df):
@@ -36,7 +36,7 @@ def populate_year_dropdown(shared_df):
     return options
 
 @callback(
-    Output('race-dropdown-gender', 'options'),
+    Output('race-dropdown-age', 'options'),
     Input('shared-df', 'data')
 )
 def populate_race_dropdown(shared_df):
@@ -45,10 +45,10 @@ def populate_race_dropdown(shared_df):
     return options
 
 @callback(
-    Output('gender-chart', 'figure'),
-    [Input('chart-dropdown-gender', 'value'),
-     Input('year-dropdown-gender', 'value'),
-     Input('race-dropdown-gender', 'value'),
+    Output('age-chart', 'figure'),
+    [Input('chart-dropdown-age', 'value'),
+     Input('year-dropdown-age', 'value'),
+     Input('race-dropdown-age', 'value'),
      Input('shared-df', 'data')]
 )
 def update_figure(selected_chart, selected_year, selected_races, shared_df):
@@ -65,6 +65,6 @@ def update_figure(selected_chart, selected_year, selected_races, shared_df):
         "race": selected_races
     }
 
-    fig = charts.build_chart(selected_chart, df, 'gender', 'Overdoses by Sex', filters=filters)
+    fig = charts.build_chart(selected_chart, df, 'age', 'Overdoses by Age', filters=filters)
 
     return fig

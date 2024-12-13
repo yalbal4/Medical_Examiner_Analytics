@@ -31,8 +31,8 @@ app.layout = html.Div(children=[
     dcc.Store(id="shared-df", data=df.to_json()),
     html.H1("Overdose Death Analytics Dashboard"),
     dbc.Nav([
-        dbc.NavLink("Gender Charts", href="/gender", active="exact"), dash.html.Br(),
-        dbc.NavLink("Gender Bar Chart", href="/bar_gender", active="exact"), dash.html.Br(),
+        dbc.NavLink("Group by Gender", href="/gender", active="exact"), dash.html.Br(),
+        dbc.NavLink("Group by Age", href="/age", active="exact"), dash.html.Br(),
     ], pills=True),
     dash.page_container
 ])
