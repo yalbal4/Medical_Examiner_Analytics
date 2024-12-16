@@ -39,18 +39,25 @@ joined_gdf = gpd.sjoin(geodata, counties_gdf, how='left', predicate='within')
 deaths_by_county = joined_gdf.groupby('OBJECTID').size()
 deaths_by_county = deaths_by_county.reset_index()
 deaths_by_county = pd.merge(deaths_by_county, counties_gdf, on='OBJECTID', how='left')
+deaths_by_county = deaths_by_county.rename(columns={0: 'death_count'})
 print(deaths_by_county)
 
 fig = px.choropleth(
     deaths_by_county,
     geojson=counties_geojson,
     locations='OBJECTID',
-    color=0,
+    color='death_count',
     scope='usa',
-    hover_name='COUNTY'
+    hover_name='COUNTY',
+    hover_data = {
+        "OBJECTID": False,
+        "death_count": False,
+        "Death Count": deaths_by_county['death_count']}
 )
 
-#fig.update_traces(text='testt', selector=dict(type='choropleth'))
+# Update layout for map visualization
+fig.update_geos(fitbounds="locations", visible=True)
+fig.update_layout(title="Medical Examiner Deaths by County")
 
 fig.show()
 # app = Dash()
