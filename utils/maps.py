@@ -6,8 +6,8 @@ import geopandas as gpd
 import json
 from shapely.geometry import shape
 
-data_file_path = 'conneticut_wide_form.csv'
-counties_geojson_file_path = 'CT_Counties.geojson'
+data_file_path = 'data\conneticut_wide_form.csv'
+counties_geojson_file_path = 'data\CT_Counties.geojson'
 geolocation_column_name = 'injurycitygeo'
 
 data = pd.read_csv(data_file_path)

@@ -1,11 +1,8 @@
-import dash_leaflet as dl
-import dash_leaflet.express as dlx
-from dash import Dash, html
+from dash import Dash, html, dcc
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import shape
 import json
-import matplotlib.pyplot as plt
 import folium
 from folium.plugins import HeatMap
 
@@ -37,3 +34,16 @@ m = folium.Map(location=[gdf['lat'].mean(), gdf['lon'].mean()], zoom_start=10)
 HeatMap(heat_data).add_to(m)
 
 m.save('test_heat_map.html')
+
+#load map html as string
+with open('test_heat_map.html', 'r') as f:
+    map_html = f.read()
+
+app = Dash(__name__)
+
+app.layout = html.Div([
+    html.Iframe(children=map_html)
+])
+
+if __name__ == '__main__':
+    app.run_server(debug=True)
