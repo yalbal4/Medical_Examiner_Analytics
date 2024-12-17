@@ -49,16 +49,22 @@ def create_choropleth_fig(df):
     )
     return fig
 
-def create_county_time_series(df, county_id):
+def create_county_time_series(df, county_id=None, county_name=None):
     if county_id is not None:
+        df_copy = df.copy()
         df_copy = df[df['CNTY_NO'] == county_id]
     else:
-        df_copy = df
-        df_copy = df_copy[['death_year', 'death_count']].copy()
+        df_copy = df.copy()
+        df_copy = df_copy.drop(['geometry'], axis=1)
         df_copy = df_copy.groupby('death_year').sum()
         df_copy = df_copy.reset_index()
         
-    fig = px.scatter(df_copy, x='death_year', y='death_count')
+    if county_name is not None:
+        title = county_name + ' County Deaths Over Time'
+    else:
+        title = 'Connecticut Deaths Over Time'
+
+    fig = px.scatter(df_copy, x='death_year', y='death_count', title=title)
     fig.update_traces(mode='lines+markers')
     fig.update_xaxes(showgrid=False)
     return fig
@@ -71,7 +77,7 @@ map_fig = create_choropleth_fig(deaths_by_county)
 map_fig.update_geos(fitbounds="locations", visible=True)
 map_fig.update_layout(title="Medical Examiner Deaths by County")
 
-time_series_fig = create_county_time_series(deaths_by_county, None)
+time_series_fig = create_county_time_series(deaths_by_county, None, None)
 
 app = Dash()
 
@@ -89,7 +95,8 @@ def update_div(map_hover_data):
     if map_hover_data is None:
         return None
     county_id = map_hover_data['points'][0]['location']
-    create_county_time_series(deaths_by_county, county_id)
+    county_name = map_hover_data['points'][0]['hovertext']
+    create_county_time_series(deaths_by_county, county_id, county_name)
     return county_id
 
 @callback(
@@ -98,10 +105,11 @@ def update_div(map_hover_data):
 )
 def update_time_series(map_hover_data):
     if map_hover_data is None:
-        return create_county_time_series(deaths_by_county, None)
-        
+        return create_county_time_series(deaths_by_county, None, None)
+
     county_id = map_hover_data['points'][0]['location']
-    fig = create_county_time_series(deaths_by_county, county_id)
+    county_name = map_hover_data['points'][0]['hovertext']
+    fig = create_county_time_series(deaths_by_county, county_id, county_name)
     return fig
 
 if __name__ == '__main__':
