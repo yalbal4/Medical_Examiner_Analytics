@@ -1,5 +1,5 @@
 from dash.dependencies import Input, Output
-from dash import Dash, html, dcc
+from dash import Dash, html, dcc, callback, Input, Output
 import plotly.express as px
 import pandas as pd
 import geopandas as gpd
@@ -49,21 +49,60 @@ def create_choropleth_fig(df):
     )
     return fig
 
+def create_county_time_series(df, county_id):
+    if county_id is not None:
+        df_copy = df[df['CNTY_NO'] == county_id]
+    else:
+        df_copy = df
+        df_copy = df_copy[['death_year', 'death_count']].copy()
+        df_copy = df_copy.groupby('death_year').sum()
+        df_copy = df_copy.reset_index()
+        
+    fig = px.scatter(df_copy, x='death_year', y='death_count')
+    fig.update_traces(mode='lines+markers')
+    fig.update_xaxes(showgrid=False)
+    return fig
+
 deaths_by_county = group_deaths_by_county_and_year(joined_gdf)
+# print(f"deaths_by_county {deaths_by_county}")
 
-fig = create_choropleth_fig(deaths_by_county)
-
+map_fig = create_choropleth_fig(deaths_by_county)
 # Update layout for map visualization
-fig.update_geos(fitbounds="locations", visible=True)
-fig.update_layout(title="Medical Examiner Deaths by County")
+map_fig.update_geos(fitbounds="locations", visible=True)
+map_fig.update_layout(title="Medical Examiner Deaths by County")
 
-# fig.show()
+time_series_fig = create_county_time_series(deaths_by_county, None)
 
 app = Dash()
 
 app.layout = html.Div([
-    dcc.Graph(figure=fig)
+    dcc.Graph(id='county-map', figure=map_fig),
+    dcc.Graph(id='county-time-series', figure=time_series_fig),
+    html.Div(id='test-div', children='helo')
 ])
+
+@callback(
+    Output(component_id='test-div', component_property='children'),
+    Input(component_id='county-map', component_property='hoverData')
+)
+def update_div(map_hover_data):
+    if map_hover_data is None:
+        return None
+    county_id = map_hover_data['points'][0]['location']
+    create_county_time_series(deaths_by_county, county_id)
+    return county_id
+
+@callback(
+    Output(component_id='county-time-series', component_property='figure'),
+    Input(component_id='county-map', component_property='hoverData')
+)
+def update_time_series(map_hover_data):
+    if map_hover_data is None:
+        return create_county_time_series(deaths_by_county, None)
+        
+    county_id = map_hover_data['points'][0]['location']
+    fig = create_county_time_series(deaths_by_county, county_id)
+    return fig
 
 if __name__ == '__main__':
     app.run_server(debug=True)
