@@ -85,8 +85,7 @@ app = Dash()
 app.layout = html.Div([
     dcc.Graph(id='county-map', figure=map_fig),
     html.Button('Unselect County', id='clear-county-button'),
-    dcc.Graph(id='county-time-series', figure=time_series_fig),
-    html.Div(id='test-div', children='helo')
+    dcc.Graph(id='county-time-series', figure=time_series_fig)
 ])
 
 # REMOVE when finalized
