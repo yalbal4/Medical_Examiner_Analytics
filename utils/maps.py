@@ -1,5 +1,5 @@
 from dash.dependencies import Input, Output
-from dash import Dash, html, dcc, callback, Input, Output
+from dash import Dash, html, dcc, callback, Input, Output, ctx
 import plotly.express as px
 import pandas as pd
 import geopandas as gpd
@@ -25,18 +25,19 @@ counties_gdf = gpd.read_file(counties_geojson_file_path)
 
 joined_gdf = gpd.sjoin(death_geodata, counties_gdf, how='left', predicate='within')
 
+def group_deaths_by_county_and_year(df, counties_gdf):
+    df_copy = df.copy()
+    df_copy = df_copy.groupby(['OBJECTID', 'death_year']).size()
+    df_copy = df_copy.reset_index()
+    # regain county data lost from the groupby
+    df_copy = pd.merge(df_copy, counties_gdf, on='OBJECTID', how='left')
+    df_copy = df_copy.rename(columns={0: 'death_count'})
+    return df_copy
 
-def group_deaths_by_county_and_year(df):
-    df = joined_gdf.groupby(['OBJECTID', 'death_year']).size()
-    df = df.reset_index()
-    df = pd.merge(df, counties_gdf, on='OBJECTID', how='left')
-    df = df.rename(columns={0: 'death_count'})
-    return df
-
-def create_choropleth_fig(df):
+def create_choropleth_fig(df, locations_geojson):
     fig = px.choropleth(
         df,
-        geojson=counties_geojson,
+        geojson=locations_geojson,
         locations='OBJECTID',
         color='death_count',
         scope='usa',
@@ -69,10 +70,10 @@ def create_county_time_series(df, county_id=None, county_name=None):
     fig.update_xaxes(showgrid=False)
     return fig
 
-deaths_by_county = group_deaths_by_county_and_year(joined_gdf)
+deaths_by_county = group_deaths_by_county_and_year(joined_gdf, counties_gdf)
 # print(f"deaths_by_county {deaths_by_county}")
 
-map_fig = create_choropleth_fig(deaths_by_county)
+map_fig = create_choropleth_fig(deaths_by_county, counties_geojson)
 # Update layout for map visualization
 map_fig.update_geos(fitbounds="locations", visible=True)
 map_fig.update_layout(title="Medical Examiner Deaths by County")
@@ -83,32 +84,38 @@ app = Dash()
 
 app.layout = html.Div([
     dcc.Graph(id='county-map', figure=map_fig),
+    html.Button('Unselect County', id='clear-county-button'),
     dcc.Graph(id='county-time-series', figure=time_series_fig),
     html.Div(id='test-div', children='helo')
 ])
 
-@callback(
-    Output(component_id='test-div', component_property='children'),
-    Input(component_id='county-map', component_property='hoverData')
-)
-def update_div(map_hover_data):
-    if map_hover_data is None:
-        return None
-    county_id = map_hover_data['points'][0]['location']
-    county_name = map_hover_data['points'][0]['hovertext']
-    create_county_time_series(deaths_by_county, county_id, county_name)
-    return county_id
+# REMOVE when finalized
+# @callback(
+#     Output(component_id='test-div', component_property='children'),
+#     Input(component_id='county-map', component_property='hoverData')
+# )
+# def update_div(map_hover_data):
+#     if map_hover_data is None:
+#         return None
+#     county_id = map_hover_data['points'][0]['location']
+#     county_name = map_hover_data['points'][0]['hovertext']
+#     create_county_time_series(deaths_by_county, county_id, county_name)
+#     return county_id
 
 @callback(
     Output(component_id='county-time-series', component_property='figure'),
-    Input(component_id='county-map', component_property='hoverData')
+    Input(component_id='county-map', component_property='clickData'),
+    Input(component_id='clear-county-button', component_property='n_clicks')
 )
-def update_time_series(map_hover_data):
-    if map_hover_data is None:
+def update_time_series(map_click_data, button_click):
+    if 'clear-county-button' == ctx.triggered_id:
+        return create_county_time_series(deaths_by_county, None, None)
+    
+    if map_click_data is None:
         return create_county_time_series(deaths_by_county, None, None)
 
-    county_id = map_hover_data['points'][0]['location']
-    county_name = map_hover_data['points'][0]['hovertext']
+    county_id = map_click_data['points'][0]['location']
+    county_name = map_click_data['points'][0]['hovertext']
     fig = create_county_time_series(deaths_by_county, county_id, county_name)
     return fig
 
