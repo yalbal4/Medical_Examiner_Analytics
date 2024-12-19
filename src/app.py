@@ -80,7 +80,8 @@ map_fig.update_layout(title="Medical Examiner Deaths by County")
 
 time_series_fig = create_county_time_series(deaths_by_county, None, None)
 
-app = Dash()
+app = Dash(__name__)
+server = app.server
 
 app.layout = html.Div([
     dcc.Graph(id='county-map', figure=map_fig),
