@@ -5,9 +5,13 @@ import pandas as pd
 import geopandas as gpd
 import json
 from shapely.geometry import shape
+from pathlib import Path
 
-data_file_path = 'data/conneticut_wide_form.csv'
-counties_geojson_file_path = 'data/CT_Counties.geojson'
+project_root = Path(__file__).resolve().parent.parent
+data_folder = project_root / 'data'
+
+data_file_path = data_folder / 'conneticut_wide_form.csv'
+counties_geojson_file_path = data_folder / 'CT_Counties.geojson'
 geolocation_column_name = 'injurycitygeo'
 
 data = pd.read_csv(data_file_path)
